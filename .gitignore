@@ -1,0 +1,9 @@
+# Ignorar ambiente virtual Python
+yolo_semaf_env/
+__pycache__/
+
+# Ignorar arquivos compactados grandes
+*.tar.gz
+*.zip
+
+dataset_maquete/
