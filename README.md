@@ -19,8 +19,6 @@ O objetivo deste projeto é identificar veículos prioritários (como ambulânci
 
 ## 📁 Estrutura do Repositório
 
-```text
-├── dataset_maquete/       # Dataset de imagens e rótulos (ignorado pelo git)
 ├── runs/                   # Resultados dos treinamentos, gráficos e pesos (.pt)
 │   └── detect/
 │       └── treinamento_maquete/
