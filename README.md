@@ -18,7 +18,7 @@ O objetivo deste projeto é identificar veículos prioritários (como ambulânci
 ---
 
 ## 📁 Estrutura do Repositório
-
+'''text
 ├── runs/                   # Resultados dos treinamentos, gráficos e pesos (.pt)
 │   └── detect/
 │       └── treinamento_maquete/
@@ -30,7 +30,7 @@ O objetivo deste projeto é identificar veículos prioritários (como ambulânci
 ├── requirements.txt        # Dependências do projeto Python
 ├── treinar_yolo.py         # Script principal de treinamento da YOLO
 └── README.md               # Documentação do projeto
-
+'''
 ## 📦 Datasets e Créditos
 
 O dataset final utilzado para o treinamento do modelo foi reunido, filtrado e re-rotulado a partir de fontes públicas do **Roboflow Universe**, unificando todas as anotações em uma **única classe alvo (`Emergencia`)** no formato YOLOv11.
