@@ -32,3 +32,25 @@ O objetivo deste projeto é identificar veículos prioritários (como ambulânci
 ├── requirements.txt        # Dependências do projeto Python
 ├── treinar_yolo.py         # Script principal de treinamento da YOLO
 └── README.md               # Documentação do projeto
+
+## 📦 Datasets e Créditos
+
+O dataset final utilzado para o treinamento do modelo foi reunido, filtrado e re-rotulado a partir de fontes públicas do **Roboflow Universe**, unificando todas as anotações em uma **única classe alvo (`Emergencia`)** no formato YOLOv11.
+
+Agradecemos aos criadores e mantenedores dos datasets originais:
+
+1. **Ambulance Police Firetruck**
+   * **URL:** [Roboflow Universe](https://universe.roboflow.com/detection-cars/ambulance-police-firetruck)
+   * **Licença:** CC BY 4.0
+2. **Emergency Vehicle**
+   * **URL:** [Roboflow Universe](https://universe.roboflow.com/ai-powered-traffic-management-system/emergency-vehicle-psv0q)
+   * **Licença:** CC BY 4.0
+3. **Emergency Vehicles - v4**
+   * **Volume:** 12.865 imagens em formato YOLOv11
+   * **Pré-processamento:** Auto-orientação e dimensionamento para 640x640 (com bordas pretas).
+   * **Aumentações (Augmentations):** Espelhamento horizontal (50%), recorte aleatório (0-10%), rotação (-10° a +10°), cisalhamento (shear), ajuste de brilho/exposição, *Gaussian blur* e ruído *Salt and pepper*.
+4. **emergency-vehicle**
+   * **URL:** [Roboflow Universe](https://universe.roboflow.com/abdelouafi-boumoula/emergency-vehicle-wuhke)
+   * **Licença:** CC BY 4.0
+
+---
