@@ -27,7 +27,7 @@ nvidia-ml-py==13.610.43
 nvidia-nccl-cu12==2.20.5
 nvidia-nvjitlink-cu12==12.9.86
 nvidia-nvtx-cu12==12.1.105
-opencv-python==5.0.0.93
+opencv-python>=4.8.0,<4.11.0
 packaging==26.2
 pillow==10.4.0
 polars==1.8.2
