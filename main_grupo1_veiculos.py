@@ -5,7 +5,6 @@ import cv2
 import json
 import time
 import numpy as np
-from collections import deque, Counter  # Importado para a janela de votação
 from ultralytics import YOLO
 import supervision as sv
 import serial
@@ -14,30 +13,43 @@ import serial
 # 1. CONFIGURAÇÕES E CARREGAMENTO DO MODELO
 # ==========================================
 MODEL_PATH = "runs/detect/treinamento_maquete/modelo_emergencia-2/weights/best.pt"
-CONFIDENCE_THRESHOLD = 0.35
+CONFIDENCE_THRESHOLD = 0.50
 TARGET_CLASS_NAME = "Emergencia"
 REGIOES_FILE = "regioes_semaforo.json"
 
 # CONFIGURAÇÕES DE DESEMPENHO E OTIMIZAÇÃO
-USE_SLICING = False       # True para usar slicing, False para inferência direta
-FRAME_STRIDE = 3         # Inferência executada a cada N frames
+USE_SLICING = False       
+FRAME_STRIDE = 3         # Descarta (FRAME_STRIDE - 1) quadros para manter tempo real
 
-# PARAMETROS DE VOTAÇÃO TEMPORAL
-VOTING_WINDOW_SIZE = 30  # Tamanho da memória de quadros
-VOTING_THRESHOLD = 0.60   # Exige 60% de dominância para confirmar o comando (ex: 18 de 30)
-
-print(f"Carregando modelo YOLO local (Slicing: {USE_SLICING} | Stride: {FRAME_STRIDE} | Janela Votação: {VOTING_WINDOW_SIZE})...")
+print(f"Carregando modelo YOLO local (Slicing: {USE_SLICING} | Stride: {FRAME_STRIDE})...")
 model = YOLO(MODEL_PATH)
 
 # ==========================================
-# 2. CONEXÃO SERIAL COM O ARDUINO (SIMULAÇÃO)
+# 2. CONEXÃO SERIAL REAL COM O ARDUINO
 # ==========================================
+SERIAL_PORT = '/dev/ttyACM0'  # Altere para '/dev/ttyUSB0' se necessário
+BAUD_RATE = 9600
+
+try:
+    arduino = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
+    time.sleep(2)  # Tempo para reset do Arduino ao conectar
+    print(f"✅ Conectado com sucesso ao Arduino em {SERIAL_PORT}")
+except Exception as e:
+    print(f"⚠️ Não foi possível abrir a porta {SERIAL_PORT}: {e}")
+    print("   O código continuará rodando em MODO SIMULAÇÃO.")
+    arduino = None
+
 ultimo_comando_enviado = ""
 
 def enviar_comando_arduino(comando):
-    global ultimo_comando_enviado
+    global ultimo_comando_enviado, arduino
     if comando != ultimo_comando_enviado:
-        print(f"--> [SIMULAÇÃO SERIAL] Comando alterado: {comando}")
+        print(f"--> [SERIAL REAL] Enviando comando: {comando}")
+        
+        if arduino and arduino.is_open:
+            mensagem = f"{comando}\n"
+            arduino.write(mensagem.encode('utf-8'))
+            
         ultimo_comando_enviado = comando
 
 # ==========================================
@@ -173,7 +185,7 @@ def main():
     if os.path.exists(REGIOES_FILE):
         resposta = input(f"\nJá existe um arquivo '{REGIOES_FILE}'. Deseja reanotar as regiões? [s/N]: ").strip().lower()
         if resposta == 's':
-            cap_temp = cv2.VideoCapture(0)
+            cap_temp = cv2.VideoCapture(2)
             if not cap_temp.isOpened(): return
             annotate_regions_local(cap_temp)
             salvar_regioes(REGIOES_FILE, regions)
@@ -181,14 +193,17 @@ def main():
         else:
             regions = carregar_regioes(REGIOES_FILE)
     else:
-        cap_temp = cv2.VideoCapture(0)
+        cap_temp = cv2.VideoCapture(2)
         if not cap_temp.isOpened(): return
         annotate_regions_local(cap_temp)
         salvar_regioes(REGIOES_FILE, regions)
         cap_temp.release()
 
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(2)
     if not cap.isOpened(): return
+
+    # Reduz o buffer interno sem alterar a resolução nativa da câmera
+    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
     print("Aguardando estabilização da câmera...")
     time.sleep(1.5) 
@@ -200,78 +215,54 @@ def main():
     cv2.namedWindow(janela_nome)
     cv2.waitKey(1)
 
-    # Variáveis de Performance e Votação
-    frame_count = 0
-    detections = sv.Detections.empty()
-    labels = []
-    
-    # JANELA DE MEMÓRIA DE VOTOS
-    historico_votos = deque(maxlen=VOTING_WINDOW_SIZE)
-
     prev_time = time.time()
     fps = 0.0
 
     try:
         while True:
+            # Descarte de quadros acumulados no buffer para garantir imagem em tempo real
+            for _ in range(FRAME_STRIDE - 1):
+                cap.grab()
+
             ret, frame = cap.read()
             if not ret: break
 
-            frame_count += 1
-
-            # 1. FPS
+            # 1. CÁLCULO DE FPS
             curr_time = time.time()
             elapsed_time = curr_time - prev_time
             prev_time = curr_time
             if elapsed_time > 0: fps = 1.0 / elapsed_time
 
-            # 2. INFERÊNCIA E CLASSIFICAÇÃO
-            if frame_count % FRAME_STRIDE == 0 or len(detections) == 0:
-                detections = executar_inferencia(frame)
-                labels = []
-                regioes_frame_atual = []
+            # 2. INFERÊNCIA E CLASSIFICAÇÃO IMEDIATA
+            detections = executar_inferencia(frame)
+            labels = []
+            regioes_frame_atual = []
 
-                for i in range(len(detections)):
-                    x1, y1, x2, y2 = detections.xyxy[i].astype(int)
-                    regiao = bb_best_region((x1, y1, x2, y2), regions)
+            for i in range(len(detections)):
+                x1, y1, x2, y2 = detections.xyxy[i].astype(int)
+                regiao = bb_best_region((x1, y1, x2, y2), regions)
 
-                    if regiao:
-                        regioes_frame_atual.append(regiao)
-                        labels.append(f"{TARGET_CLASS_NAME} {detections.confidence[i]:.0%} | {regiao.upper()}")
-                    else:
-                        labels.append(f"{TARGET_CLASS_NAME} {detections.confidence[i]:.0%}")
-
-                # Registrar voto deste frame (Região ou "Nenhum")
-                voto_atual = regioes_frame_atual[0] if len(regioes_frame_atual) > 0 else "NENHUM"
-                historico_votos.append(voto_atual)
-
-            # 3. LÓGICA DE VOTAÇÃO (MAIORIA QUALIFICADA)
-            if len(historico_votos) > 0:
-                contagem = Counter(historico_votos)
-                mais_voted_regiao, qtd_votos = contagem.most_common(1)[0]
-                porcentagem_votos = qtd_votos / len(historico_votos)
-
-                # Verifica se a região vencedora atingiu o limiar de aprovação
-                if mais_voted_regiao != "NENHUM" and porcentagem_votos >= VOTING_THRESHOLD:
-                    regiao_confirmada = mais_voted_regiao
-                    comando_decidido = mapa_comandos[regiao_confirmada]
+                if regiao:
+                    regioes_frame_atual.append(regiao)
+                    labels.append(f"{TARGET_CLASS_NAME} {detections.confidence[i]:.0%} | {regiao.upper()}")
                 else:
-                    regiao_confirmada = None
-                    comando_decidido = "XX"
+                    labels.append(f"{TARGET_CLASS_NAME} {detections.confidence[i]:.0%}")
+
+            # Decisão instantânea do quadro atual (sem votação)
+            if len(regioes_frame_atual) > 0:
+                regiao_confirmada = regioes_frame_atual[0]
+                comando_decidido = mapa_comandos[regiao_confirmada]
             else:
                 regiao_confirmada = None
                 comando_decidido = "XX"
 
-            # Envia para a Serial o resultado consolidado da votação
+            # Envia para a Serial (somente se houver alteração de estado)
             enviar_comando_arduino(comando_decidido)
 
-            # 4. DESENHO DA INTERFACE
-            annotated_frame = frame.copy()
-            
-            # Anotações leves das Bounding Boxes
-            annotated_frame = box_annotator.annotate(scene=annotated_frame, detections=detections)
+            # 3. DESENHO DA INTERFACE
+            annotated_frame = box_annotator.annotate(scene=frame, detections=detections)
             annotated_frame = label_annotator.annotate(scene=annotated_frame, detections=detections, labels=labels)
 
-            # Preparação das informações compactas
             fps_str = f"FPS: {fps:.0f}"
             
             if regiao_confirmada:
@@ -281,13 +272,10 @@ def main():
                 status_txt = f"NORMAL ({comando_decidido}) | {fps_str}"
                 cor_indicador = (0, 255, 0)  # Verde
 
-            # Badge compacto no canto superior esquerdo (fundo escuro discreto)
-            cv2.rectangle(annotated_frame, (10, 10), (340, 40), (20, 20, 20), -1)
-            
-            # Ponto luminoso de status (Led virtual)
+            # Badge superior
+            cv2.rectangle(annotated_frame, (10, 10), (360, 40), (20, 20, 20), -1)
             cv2.circle(annotated_frame, (25, 25), 6, cor_indicador, -1)
             
-            # Texto limpo com anti-aliasing (LINE_AA)
             cv2.putText(
                 annotated_frame, 
                 status_txt, 
@@ -304,6 +292,8 @@ def main():
             if cv2.waitKey(1) & 0xFF == ord('q'): break
 
     finally:
+        if arduino and arduino.is_open:
+            arduino.close()
         cap.release()
         cv2.destroyAllWindows()
 

@@ -33,7 +33,7 @@ import serial
 # ==========================================
 # Altere 'COM3' para a porta onde o Arduino está conectado no seu PC 
 # (Exemplo no Windows: 'COM3', 'COM4' | no Linux/Mac: '/dev/ttyUSB0', '/dev/ttyACM0')
-PORTA_SERIAL = 'COM3'
+PORTA_SERIAL = '/dev/ttyACM0'
 BAUD_RATE = 9600
 
 try:
@@ -190,7 +190,7 @@ def main():
     if os.path.exists(REGIOES_FILE):
         resposta = input(f"\nJá existe um arquivo '{REGIOES_FILE}'. Deseja reanotar as faixas? [s/N]: ").strip().lower()
         if resposta == 's':
-            cap_temp = cv2.VideoCapture(0)
+            cap_temp = cv2.VideoCapture(2)
             if not cap_temp.isOpened(): return
             annotate_regions_local(cap_temp)
             salvar_regioes(REGIOES_FILE, regions)
@@ -198,13 +198,13 @@ def main():
         else:
             regions = carregar_regioes(REGIOES_FILE)
     else:
-        cap_temp = cv2.VideoCapture(0)
+        cap_temp = cv2.VideoCapture(2)
         if not cap_temp.isOpened(): return
         annotate_regions_local(cap_temp)
         salvar_regioes(REGIOES_FILE, regions)
         cap_temp.release()
 
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(2)
     if not cap.isOpened(): return
 
     print("Aguardando estabilização da câmera...")
