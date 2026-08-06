@@ -1,5 +1,6 @@
 # Ignorar ambiente virtual Python
 yolo_semaf_env/
+.venv/
 __pycache__/
 
 # Ignorar arquivos compactados grandes
