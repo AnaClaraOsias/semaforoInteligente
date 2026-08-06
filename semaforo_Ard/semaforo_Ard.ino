@@ -40,7 +40,7 @@ void loop() {
   if (comandoIA == "XX" || comandoIA == "X") {
     rotinaNormal();
   }
-  else if (comandoIA.startsWith("P")) {
+  else if (comandoIA.startsWith("F")) {
     char localPedestre = comandoIA[1];
     if (localPedestre == 'N' || localPedestre == 'S') {
       fecharNorteSul_AbrirLesteOeste();

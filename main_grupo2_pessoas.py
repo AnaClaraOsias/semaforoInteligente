@@ -211,7 +211,7 @@ def main():
     time.sleep(1.5) 
     for _ in range(5): cap.read()
 
-    # Mapa de comandos: 'F' para Fechar sinal, 'ABERTO' indica sinal liberado para carros
+    # Mapa de comandos: 'F' para Fechar sinal, 'XX' indica sinal liberado para carros
     mapa_comandos = {'norte': 'FN', 'sul': 'FS', 'leste': 'FL', 'oeste': 'FO'}
 
     janela_nome = "Sistema - Detecao de Pedestres"
@@ -272,10 +272,10 @@ def main():
                     comando_decidido = mapa_comandos[regiao_confirmada]
                 else:
                     regiao_confirmada = None
-                    comando_decidido = "ABERTO" # Sinal aberto para os carros
+                    comando_decidido = "XX" # Sinal aberto para os carros
             else:
                 regiao_confirmada = None
-                comando_decidido = "ABERTO"
+                comando_decidido = "XX"
 
             # Envia comando para a simulação serial
             enviar_comando_arduino(comando_decidido)
