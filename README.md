@@ -75,3 +75,25 @@ Assim que rodar qualquer um dos projetos "main_grupo1_veiculos.py" para o de vei
 
 
 
+## 📦 Datasets e Créditos
+
+O dataset final utilzado para o treinamento do modelo foi reunido, filtrado e re-rotulado a partir de fontes públicas do **Roboflow Universe**, unificando todas as anotações em uma **única classe alvo (`Emergencia`)** no formato YOLOv11.
+
+Agradecemos aos criadores e mantenedores dos datasets originais:
+
+1. **Ambulance Police Firetruck**
+   * **URL:** [Roboflow Universe](https://universe.roboflow.com/detection-cars/ambulance-police-firetruck)
+   * **Licença:** CC BY 4.0
+2. **Emergency Vehicle**
+   * **URL:** [Roboflow Universe](https://universe.roboflow.com/ai-powered-traffic-management-system/emergency-vehicle-psv0q)
+   * **Licença:** CC BY 4.0
+3. **Emergency Vehicles - v4**
+   * **URL:** [Roboflow Universe](https://universe.roboflow.com/wasteclassification-tczus/emergency-vehicles-p6vwf/dataset/4)
+   * **Licença:** CC BY 4.0
+5. **emergency-vehicle**
+   * **URL:** [Roboflow Universe](https://universe.roboflow.com/abdelouafi-boumoula/emergency-vehicle-wuhke)
+   * **Licença:** CC BY 4.0
+
+---
+
+
