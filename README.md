@@ -57,10 +57,21 @@ O controlador (Arduino) recebe esses comandos via comunicação serial e altera 
 │           └── modelo_emergencia/
 │               └── weights/
 │                   └── best.pt  # Pesos do melhor modelo treinado
-├── exemplo.png              # Imagem de teste para predição
-├── log_treinamento.txt      # Logs e histórico do treinamento
 ├── main_grupo1_veiculos.py  # Script de execução principal (Grupo 1)
 ├── main_grupo2_pedestres.py # Script de execução principal (Grupo 2)
 ├── requirements.txt         # Dependências do projeto Python
 ├── treinar_yolo.py          # Script principal de treinamento da YOLO
 └── README.md                # Documentação do projeto
+```
+## Utilização
+Após fazer o clone do projeto você precisa se atentar a esses pontos:
+Compatibilidade do arduino e verificação da porta de entrada.
+Assim que rodar qualquer um dos projetos "main_grupo1_veiculos.py" para o de veiculos ou "main_grupo2_pessoas.py" para detecção de pedestres o programa te perguntará se deseja reanotar os pontos de Norte/Sul/Leste/Oeste na imagem. Cada vez que a cãmera ou a maquete são movimentados isso precisa ser refeito. 
+
+## Imagens do projeto
+<img width="1280" height="960" alt="WhatsApp Image 2026-08-06 at 15 23 39" src="https://github.com/user-attachments/assets/f22ae8ea-8d34-4df9-8cd0-6a9ae57a5f4e" />
+
+<img width="1280" height="960" alt="WhatsApp Image 2026-08-06 at 15 47 49" src="https://github.com/user-attachments/assets/dea6fa45-9048-4322-8a43-c94a4ad08729" />
+
+
+
