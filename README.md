@@ -66,7 +66,7 @@ O controlador (Arduino) recebe esses comandos via comunicação serial e altera 
 ## Utilização
 Após fazer o clone do projeto você precisa se atentar a esses pontos:
 Compatibilidade do arduino e verificação da porta de entrada.
-Assim que rodar qualquer um dos projetos "main_grupo1_veiculos.py" para o de veiculos ou "main_grupo2_pessoas.py" para detecção de pedestres o programa te perguntará se deseja reanotar os pontos de Norte/Sul/Leste/Oeste na imagem. Cada vez que a cãmera ou a maquete são movimentados isso precisa ser refeito. 
+Assim que rodar qualquer um dos projetos "main_grupo1_veiculos.py" para o de veiculos ou "main_grupo2_pessoas.py" para detecção de pedestres o programa te perguntará se deseja reanotar os pontos de Norte/Sul/Leste/Oeste na imagem. Cada vez que a câmera ou a maquete são movimentados isso precisa ser refeito. 
 
 ## Imagens do projeto
 <img width="1280" height="960" alt="WhatsApp Image 2026-08-06 at 15 23 39" src="https://github.com/user-attachments/assets/f22ae8ea-8d34-4df9-8cd0-6a9ae57a5f4e" />
