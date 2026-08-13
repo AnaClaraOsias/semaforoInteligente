@@ -9,7 +9,7 @@ model = YOLO('yolo11s.pt')
 print("Iniciando o treinamento na RTX 4090...")
 
 resultados = model.train(
-    data='./dataset_maquete/data.yaml', # Onde estão as imagens e classes
+    data='./dataset_final/data.yaml', # Onde estão as imagens e classes
     epochs=100,                         # Quantas vezes a IA vai ver o dataset inteiro
     imgsz=640,                          # Resolução das imagens
     batch=32,                           # Como você tem 24GB de VRAM, podemos processar 32 imagens por vez
